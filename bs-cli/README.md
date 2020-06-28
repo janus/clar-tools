@@ -1,13 +1,13 @@
 
-#This is a a simple command line interface that would make some tasks pretty easy to play around
+# This is a a simple command line interface that would make some tasks pretty easy to play around
 
-##This is a Bash script for someone working with Clarity language
+### This is a Bash script for someone working with Clarity language
 
-##Instruction guide
-###This is a simple Bash script and only tested on Ubuntu. We expect it to work across Linux
-###To  run: `./bstack-cli.sh [inputs]`. You may also link(.profile file) it such that is works everywhere in your computer.
+### Instruction guide
+#### This is a simple Bash script and only tested on Ubuntu. We expect it to work across Linux
+#### To  run: `./bstack-cli.sh [inputs]`. You may also link(.profile file) it such that is works everywhere in your computer.
 
-### You can perform any of the instruction.
+#### You can perform any of the  below instructions.
 ```
 
 :=)This is a basic tool to help you out while learning blockstack with testnet(=:"
@@ -37,5 +37,5 @@ Command: bstack-cli contract_func contact_name contract_func gas(amount to used 
 ```
    
 
-##License
-##GNU General Public License v3.0
+### License
+### GNU General Public License v3.0
