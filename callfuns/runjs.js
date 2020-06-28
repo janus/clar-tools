@@ -5,7 +5,6 @@ const CLARTPYES = ["int", "uint", "principal", "bool", "tuple", "list"];
 var getContractFolder = function(path) {
     
     const EXTENSIONLENGTH = 4;
-    console.log(path)
     var path = path || "./";
     let arrOfdirs = path.split('/');
     if(arrOfdirs[arrOfdirs.length - 1] === "contracts") {
