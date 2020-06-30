@@ -2,25 +2,28 @@ var fs = require('fs');
 
 const CLARTPYES = ["int", "uint", "principal", "bool", "tuple", "list"];
 
-var getContractFolder = function(path) {
+var getContractFolder = function(npath) {
     
     const EXTENSIONLENGTH = 4;
-    var path = path || "./";
+    let path = npath || "./";
     let arrOfdirs = path.split('/');
     if(arrOfdirs[arrOfdirs.length - 1] === "contracts") {
+        path = path.endsWith('/')? path.substr(0, path.length - 1): path;
         return path;
     }
-    let files = fs.readdirSync(path);
+
+    let files = fs.readdirSync(path);   
 
 
     let len = files.length;
     let  isDirExist;
     for(let i = 0; i < len; i++){
-        if(files[i].length > EXTENSIONLENGTH && files[i].substr(-4) === ".clar"){
+        if(files[i].length > EXTENSIONLENGTH && files[i].endsWith(".clar")){
+            path = path.substr(-1) === '/'? path.substr(0, path.length - 1): path;
             return path;
         }
 
-        let newPath = path === "./"? path+files[i]:path+"/"+files[i];
+        let newPath = path === "./"? path+files[i]:path.substr(-1) === '/'?path+files[i] :path+"/"+files[i];
 
         isDirExist = fs.existsSync(newPath) && fs.lstatSync(newPath).isDirectory();
         if(isDirExist) {
@@ -88,23 +91,27 @@ let tokenize = function(source) {
 };
 
 let tokenizeInsideOfFolder = function(path) {
-    let targetPath = getContractFolder(path);
-    console.log(targetPath)
-    let files = fs.readdirSync(targetPath);
-    let len = files.length;
+    try {
+        let targetPath = getContractFolder(path);
+        let files = fs.readdirSync(targetPath);
+        let len = files.length;
+        
+        let rtnArray = [];
+        for(let i = 0; i < len; i++){
+            if(files[i].substr(-5) === ".clar") {
+                let source = fs.readFileSync(targetPath+"/"+files[i], {encoding: 'utf8'});
+                let tokens = tokenize(source);
+                rtnArray = rtnArray.concat(tokens)
     
-    let rtnArray = [];
-    for(let i = 0; i < len; i++){
-        console.log(files[i].substr(-5) )
-        if(files[i].substr(-5) === ".clar") {
-            console.log(targetPath+"/"+files[i]);
-            let source = fs.readFileSync(targetPath+"/"+files[i], {encoding: 'utf8'});
-            let tokens = tokenize(source);
-            rtnArray = rtnArray.concat(tokens)
-
+            }
         }
+        return rtnArray;
+
+    }catch (err){
+        console.error(err.message);
+
     }
-    return rtnArray;
+
 };
 
 let functionDeclarationSet = function(tokens) {
@@ -172,47 +179,56 @@ let stringifyArray = function(arr) {
 
 
 let getFunctionSignature = function(name, tokens) {
-    let done = false;
-    let mapArrayofSignatures = functionDeclarationSet(tokens)
-    for ( const key in mapArrayofSignatures) {
-        let arr = mapArrayofSignatures[key];
-        let len = arr.length;
-        for (let  i = 0; i < len; i++) {
-            if(arr[i][0][0] === name) {
-                let rtn = stringifyArray(arr[i]);
-                console.log('\x1b[1m', rtn);
-                done = true;
+    try {
+        let done = false;
+        let mapArrayofSignatures = functionDeclarationSet(tokens)
+        for ( const key in mapArrayofSignatures) {
+            let arr = mapArrayofSignatures[key];
+            let len = arr.length;
+            for (let  i = 0; i < len; i++) {
+                if(arr[i][0][0] === name) {
+                    let rtn = stringifyArray(arr[i]);
+                    console.log('\x1b[1m', rtn);
+                    done = true;
+                    break;
+                }
+            }
+            if(done){
                 break;
             }
         }
-        if(done){
-            break;
+        if(!done) {
+            let msg = `\n\tFunction, ${name}, is either not callable from contract or does not exist\n`;
+            console.log('\x1b[31m',msg)
+            console.log("");
         }
+
+    } catch(err) {
+        console.error(err.message);
     }
-    if(!done) {
-        let msg = `\n\tFunction, ${name}, is either not callable from contract or does not exist\n`;
-        console.log('\x1b[31m',msg)
-        console.log("");
-    }
+
 };
 
 let getFunctionsSignature = function(tokens) {
-    let done = false;
-    let mapArrayofSignatures = functionDeclarationSet(tokens)
-    let accum = "";
-    for ( const key in mapArrayofSignatures) {
-        let arr = mapArrayofSignatures[key];
-        let len = arr.length;
-        for(let i = 0; i < len; i++){
-            accum += stringifyArray(arr[i]);
+    try {
+        let mapArrayofSignatures = functionDeclarationSet(tokens)
+        let accum = "";
+        for ( const key in mapArrayofSignatures) {
+            let arr = mapArrayofSignatures[key];
+            let len = arr.length;
+            for(let i = 0; i < len; i++){
+                accum += stringifyArray(arr[i]);
+            }
+            console.log('\x1b[1m',`\n\n\t${key} functions`);
+                
+            console.log(`${accum}`)
+            accum = "";
         }
-        console.log('\x1b[1m',`\n\n\t${key} functions`);
-            
-        console.log(`${accum}`)
-        accum = "";
-    }
-    console.log(accum);
+        console.log(accum);
 
+    } catch(err) {
+        console.error(err.message);
+    }
 };
 
 

@@ -1,19 +1,10 @@
-
-
 const readline = require("readline");
 const procss = require("process");
 const run = require('./runjs.js');
 
 
+console.log(procss.argv[procss.argv.length - 1])
 const tokens = run.tokenizeInsideOfFolder(procss.argv[procss.argv.length - 1]);
-/*
-let stdin = process.openStdin();
-console.log(">>")
-stdin.addListener("data", function(d){
-    console.log("you entered: [" + d.toString().trim() + "]\n>>");
-})
-*/
-//let dd = run.tokenizeInsideOfFolder()
 
 let helpGuide = function(){
     let msg = `
